@@ -144,7 +144,7 @@ body {
 }
 
 .np-label {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 4px;
   color: var(--dim);
   text-transform: uppercase;
@@ -220,8 +220,8 @@ body {
   gap: 8px;
   margin-top: 8px;
 }
-.next-prefix { font-size: 9px; letter-spacing: 3px; color: var(--dim); flex-shrink: 0; }
-.next-name   { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.next-prefix { font-size: 10px; letter-spacing: 3px; color: var(--dim); flex-shrink: 0; }
+.next-name   { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ─── STATUS BAR ─── */
 .status-bar {
@@ -246,8 +246,8 @@ body {
 .status-dot.full  { background: var(--green); box-shadow: 0 0 8px var(--green); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-.status-text     { font-size: 10px; letter-spacing: 2px; color: var(--dim); flex: 1; }
-.file-count-badge{ font-size: 10px; color: var(--dim2); letter-spacing: 1px; }
+.status-text     { font-size: 12px; letter-spacing: 2px; color: var(--dim); flex: 1; }
+.file-count-badge{ font-size: 11px; color: var(--dim2); letter-spacing: 1px; }
 
 /* ─── CONTROLS ─── */
 .controls {
@@ -466,7 +466,7 @@ body {
   margin-bottom: 14px;
 }
 .settings-title {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 4px;
   color: var(--dim);
   text-transform: uppercase;
@@ -486,7 +486,7 @@ body {
 .setting-row:last-child { margin-bottom: 0; }
 
 .setting-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--cream);
   letter-spacing: 1px;
   width: 130px;
@@ -581,7 +581,7 @@ input[type=range]::-moz-range-thumb {
   display: none;
 }
 .history-label {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 4px;
   color: var(--dim2);
   text-transform: uppercase;
@@ -591,19 +591,32 @@ input[type=range]::-moz-range-thumb {
   list-style: none;
 }
 .histlist li {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--dim2);
-  padding: 1px 0;
+  padding: 3px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.5px;
+  border-radius: 3px;
+  transition: color 0.2s, background 0.15s;
+}
+/* name→index を解決できた履歴だけクリック可能（曲一覧 li と同じ感触に揃える） */
+.histlist li.playable { cursor: pointer; }
+.histlist li.playable:hover {
+  color: var(--amber-dim);
+  background: rgba(0,229,204,0.05);
+}
+.histlist li.playable:focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 1px;
+  box-shadow: 0 0 12px var(--neon-glow);
 }
 .histlist li:first-child { color: var(--dim); }
 .histlist li::before {
   content: '⏮ ';
   opacity: 0.4;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 /* ─── FILE LIST ─── */
@@ -624,9 +637,9 @@ input[type=range]::-moz-range-thumb {
   list-style: none;
 }
 .filelist li {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--dim2);
-  padding: 2px 4px;
+  padding: 3px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -652,7 +665,7 @@ input[type=range]::-moz-range-thumb {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--dim2);
   letter-spacing: 2px;
 }
@@ -754,7 +767,7 @@ input[type=range]::-moz-range-thumb {
   border: 1px solid var(--amber-lo);
   color: var(--cream);
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: 13px;
   padding: 8px 10px;
   border-radius: 4px;
   outline: none;
@@ -769,7 +782,7 @@ input[type=range]::-moz-range-thumb {
 }
 #searchInput::placeholder { color: var(--dim2); }
 .search-count {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--dim);
   letter-spacing: 1px;
   min-width: 42px;
@@ -838,6 +851,10 @@ input[type=range]::-moz-range-thumb {
     color: var(--dim2);
     background: transparent;
   }
+  .histlist li.playable:hover {
+    color: var(--dim2);
+    background: transparent;
+  }
   .sleep-btn:hover {
     border-color: var(--amber-lo);
     color: var(--amber-dim);
@@ -893,8 +910,8 @@ input[type=range]::-moz-range-thumb {
   input[type=range]::-moz-range-thumb     { width: 22px; height: 22px; }
 
   .filelist-wrap { max-height: 200px; -webkit-overflow-scrolling: touch; }
-  .filelist li { padding: 6px 4px; font-size: 11px; }
-  .histlist li { padding: 3px 0; }
+  .filelist li { padding: 7px 4px; font-size: 13px; }
+  .histlist li { padding: 6px 4px; font-size: 13px; }
 
   /* footer too cramped on mobile — hide kbd hint */
   .footer .kbd-hint { display: none; }
@@ -1135,6 +1152,17 @@ function resetRecentIdxList() {
 let userPaused = false;
 let _userPauseStart = 0;  // pauseAll でポーズした壁時計時刻（resumeAll で slotEndTime 補正に使う）
 
+// ── 外部割り込み（電話着信 / 音声フォーカス喪失 / BT が通話 HFP へ切替）──
+// OS が audio 要素を pause した（'pause' イベントが発火した）ことで立つフラグ。
+// userPaused（ユーザー意図の停止）とは別物。これが true の間は watchdog /
+// AudioContext statechange / Page Lifecycle 'resume' 等の "バックグラウンド自動復帰" を
+// 全て抑止し、通話中に裏で音楽が鳴り続けたり次曲へ進んだりするのを防ぐ。
+// 解除は「割り込みが明確に終わった信号」のみ:
+//   ① 実際に再生が再開した（onExternalPlay）
+//   ② 画面が visible に復帰 → そのまま再生再開（visibilitychange / resumeAll）
+//   ③ ロック画面 / 通知 / BT リモコン / アプリの PLAY（MediaSession 'play' / togglePlay）
+let externalInterrupted = false;
+
 // ── 内部 audio.pause() 判別フラグ ──
 // finishCrossfade / resolveActiveSlot 等の内部処理から呼ぶ audio.pause() は
 // onExternalPause に「外部中断」と誤検知させてはいけない。誤検知すると pauseStartMs が
@@ -1220,24 +1248,39 @@ function setupMediaSession() {
   const safe = fn => () => { try { fn(); } catch(_) {} };
 
   try {
+    // ── PLAY: 再生開始 / 一時停止・外部割り込み・AudioContext suspend からの確実な復帰 ──
     ms.setActionHandler('play', safe(() => {
       userPaused = false;
+      externalInterrupted = false;  // 明示的な PLAY 要求＝割り込みは終わったとみなす
       if (!isPlaying) {
+        // ポーズ/停止からの再開。resumeAll / 新規スタートが playbackState を設定する。
         togglePlay();
       } else {
-        // 外部 pause（電話着信等）からの復帰
-        const a = audios[activeSlot];
-        if (a && a.src && a.paused) a.play().catch(() => {});
+        // 「再生中」フラグは立っているのに音が出ていない状態からの復帰。
+        // 画面ロック中に AudioContext だけ suspended になり audio 要素は paused=false の
+        // ことがあり、activeSlot の paused だけ見ると「PLAYを押しても鳴らない」原因になる。
+        // context の resume と、src を持つ全スロットの play を両方行う。
+        if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+        audios.forEach(a => { if (a.src && a.paused) a.play().catch(() => {}); });
+        setMediaSessionPlaybackState('playing');
       }
-      setMediaSessionPlaybackState('playing');
     }));
 
+    // ── PAUSE ──
     ms.setActionHandler('pause', safe(() => {
-      pauseAll();
+      if (isPlaying) pauseAll();
+      else setMediaSessionPlaybackState('paused');  // 表示が playing で固着していた場合の同期
     }));
 
+    // ── NEXT: ランダムで次の曲へ ──
+    // ポーズ中に押された場合も無反応にせず、再開してから次曲へ進める
+    // （旧実装は if(isPlaying) ゲート＋ skipTrack 内 !isPlaying return で完全に死んでいた）。
     ms.setActionHandler('nexttrack', safe(() => {
-      if (isPlaying) skipTrack();
+      if (isPlaying) { skipTrack(); return; }
+      const hasTrack = currentIdx >= 0 && audios.some(a => a.src && a.src !== '');
+      if (hasTrack) {
+        Promise.resolve(resumeAll()).then(() => { if (isPlaying) skipTrack(); }).catch(() => {});
+      }
     }));
 
     // ランダムジュークボックスに「前曲」の概念がない。
@@ -1245,9 +1288,11 @@ function setupMediaSession() {
     // previous ボタンが押下不可（グレーアウト）になり、誤って次曲へ飛ぶUXバグを防ぐ。
     try { ms.setActionHandler('previoustrack', null); } catch(_) {}
 
+    // ── STOP: ポーズ中・停止済みでも常に停止できるようにする（通知をクリア） ──
+    // stopAll() は末尾で setUIIdle() → playbackState='none' まで行うので追加処理は不要。
     try {
       ms.setActionHandler('stop', safe(() => {
-        if (isPlaying) stopAll();
+        stopAll();
       }));
     } catch(_) {}
   } catch (e) {
@@ -1375,6 +1420,13 @@ function checkPlaybackHealth() {
     } catch(_) {}
     return;
   }
+
+  // ── 外部割り込み中は一切介入しない ──
+  // 電話着信などで OS が audio を pause したら、ウォッチドッグが勝手に
+  // a.play() で鳴らし直したり slotEndTime 超過で次曲へ強制 advance すると
+  // 「通話中に裏で音楽が鳴る」不具合になる。割り込みが解けるまで様子見する。
+  // 復帰は visibilitychange(visible) / MediaSession 'play' / resumeAll が担う。
+  if (externalInterrupted) return;
 
   const a = audios[activeSlot];
 
@@ -1553,14 +1605,19 @@ function initAudioContext() {
     try {
       actx.addEventListener('statechange', () => {
         if (!actx) return;
-        // suspended へ落ちた: 再生中なら能動的に resume を試みる
-        if (actx.state === 'suspended' && isPlaying && !userPaused) {
+        // suspended へ落ちた: 再生中なら能動的に resume を試みる。
+        // ただし外部割り込み中（通話中）は OS と争って context を起こし直さない。
+        // （通話中に裏で音が鳴り出すのを防ぐ。復帰は割り込み終了の合図に委ねる）
+        if (actx.state === 'suspended' && isPlaying && !userPaused && !externalInterrupted) {
           actx.resume().catch(() => {});
           return;
         }
-        // running 復帰: audio 要素が paused になっているケースをカバー
-        // (a.play() は 'play' イベントで onExternalPlay を発火し、
-        //  pauseStartMs / wasPlayingBeforeInterrupt をクリーンアップしてくれる)
+        // running 復帰: audio 要素が paused になっているケースをカバー。
+        // 外部割り込み中でも、context が suspended/interrupted から running へ戻った
+        // ＝「割り込み（通話）が終わった」合図とみなして自動再開する（iOS の
+        // interrupted→running、Android の通話中 suspend→終了で running 復帰など）。
+        // a.play() は 'play' イベントで onExternalPlay を発火し、externalInterrupted /
+        // pauseStartMs / wasPlayingBeforeInterrupt をクリーンアップしてくれる。
         if (actx.state === 'running' && isPlaying && !userPaused) {
           audios.forEach(a => {
             if (a.src && a.paused) a.play().catch(() => {});
@@ -2380,6 +2437,25 @@ function renderHistory() {
   playHistory.forEach(name => {
     const li = document.createElement('li');
     li.textContent = stripExt(name);
+    li.title = name;
+    // ── 履歴項目から再生 ──
+    // 履歴はフォルダ切替時に必ずクリアされる（playHistory=[]）ため、
+    // name→files インデックスの解決は同一フォルダ内で安定する。
+    // 解決できた項目だけクリック/Enter/Space で再生可能にし、曲一覧クリックと
+    // 同じ playSpecificTrack（停止中=起動／再生中=クロスフェード）へ委譲する。
+    const idx = files.findIndex(f => f.name === name);
+    if (idx >= 0) {
+      li.classList.add('playable');
+      li.tabIndex = 0;
+      li.setAttribute('role', 'button');
+      li.addEventListener('click', () => playSpecificTrack(idx));
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          playSpecificTrack(idx);
+        }
+      });
+    }
     ul.appendChild(li);
   });
   wrap.style.display = playHistory.length > 0 ? 'block' : 'none';
@@ -2467,6 +2543,7 @@ async function togglePlay() {
 
     // 初回または完全停止後の新規スタート
     userPaused = false;
+    externalInterrupted = false;
     await resumeAudioContext();
     isPlaying  = true;
     activeSlot = 0;
@@ -2555,6 +2632,7 @@ function pauseAll() {
 async function resumeAll() {
   if (isPlaying) return;
   userPaused = false;
+  externalInterrupted = false;
   isPlaying  = true;
 
   // ── ポーズ期間分 slotEndTime を後ろへずらす ──
@@ -2649,6 +2727,7 @@ function stopAll() {
   isPlaying   = false;
   isFading    = false;
   _userPauseStart = 0;
+  externalInterrupted = false;  // 停止したら割り込み状態も解消
   stopWatchdog();              // ヘルスチェック停止
   isFullPlay  = false;
   isRepeatOne = false;
@@ -4050,7 +4129,9 @@ function setUIIdle() {
   // 'resume' イベントはタブが解凍された直後に発火するので、ここで明示的に
   // AudioContext / audio 要素を起こし直す。
   document.addEventListener('resume', () => {
-    if (!isPlaying || userPaused) return;
+    // 外部割り込み中（通話中）は解凍されても勝手に鳴らさない。
+    // 'resume' は hidden のまま発火しうるため、復帰は visible 化 / 明示 PLAY に委ねる。
+    if (!isPlaying || userPaused || externalInterrupted) return;
     if (actx && actx.state === 'suspended') {
       actx.resume().catch(() => {});
     }
@@ -4069,9 +4150,18 @@ function setUIIdle() {
     if (!isPlaying) return; // ユーザーが止めた場合は何もしない
     if (pauseStartMs === 0) pauseStartMs = Date.now();
     wasPlayingBeforeInterrupt = true;
+    // 外部要因（電話着信 / BT 通話切替 / 他アプリの音声フォーカス奪取）による pause。
+    // バックグラウンド自動復帰を抑止して通話中に裏で鳴らないようにする。
+    externalInterrupted = true;
+    setMediaSessionPlaybackState('paused');
   }
 
   function onExternalPlay() {
+    // 実際に再生が再開した ＝ 割り込み（通話）は終わった。フラグを解除して
+    // watchdog 等のバックグラウンド自動復帰を通常どおり再開させる。
+    // 通話復帰時はロック画面/通知の表示も「再生中」へ戻す。
+    if (externalInterrupted) setMediaSessionPlaybackState('playing');
+    externalInterrupted = false;
     // 一時停止期間ぶん slotEndTime を遅らせて fadeTimer を再スケジュール
     if (pauseStartMs > 0 && isPlaying) {
       // クロスフェード中に inAudio.play() が発火する 'play' イベントを
