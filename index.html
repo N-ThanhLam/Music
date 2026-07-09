@@ -261,10 +261,41 @@ body {
 /* grid 子の min-content（white-space:nowrap + letter-spacing で広がりがち）が
    1fr 割合を上回って右にはみ出すのを抑制。あふれた分は省略表示にする。
    ※「📁 フォルダ選択」「⏭ スキップ」など狭幅端末で見切れる主因はこれ。 */
-.controls > .btn {
+.controls > .btn,
+.source-picker > .btn {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.source-picker {
+  position: relative;
+  min-width: 0;
+}
+.source-picker > .btn {
+  width: 100%;
+}
+.source-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--amber-lo);
+  border-radius: 6px;
+  background: var(--panel2);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+}
+.source-menu[hidden] {
+  display: none;
+}
+.source-menu .btn {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 8px;
+  font-size: 10px;
 }
 
 .btn {
@@ -367,7 +398,6 @@ body {
   background: rgba(0,255,238,0.12);
   box-shadow: 0 0 28px rgba(0,255,238,0.35);
 }
-
 /* Restore button */
 .btn.restore-btn {
   grid-column: 1 / -1;
@@ -463,6 +493,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 14px;
 }
 .settings-title {
@@ -475,6 +506,36 @@ body {
   font-size: 10px;
   color: var(--amber-dim);
   letter-spacing: 1px;
+}
+.settings-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.settings-lock-btn {
+  border: 1px solid var(--amber-lo);
+  background: transparent;
+  color: var(--amber-dim);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.settings-lock-btn:hover {
+  color: var(--cream);
+  border-color: var(--amber);
+  background: rgba(255,183,77,0.08);
+}
+.settings-lock-btn.unlocked {
+  color: var(--green);
+  border-color: rgba(0,229,204,0.5);
+  background: rgba(0,229,204,0.08);
+  box-shadow: 0 0 10px rgba(0,229,204,0.14);
 }
 
 .setting-row {
@@ -510,6 +571,17 @@ input[type=range] {
      縦パンだけブラウザに渡し、横ジェスチャは要素自身に占有させる */
   touch-action: pan-y;
 }
+input[type=range]:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+input[type=range]:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  transform: none;
+}
+input[type=range]:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 14px;
@@ -533,6 +605,9 @@ input[type=range]::-moz-range-thumb {
 /* volume slider thumb = green */
 #sliderVol::-webkit-slider-thumb { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
 #sliderVol::-moz-range-thumb     { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+#sliderMic::-webkit-slider-thumb { background: var(--red); box-shadow: 0 0 8px rgba(255,68,85,0.65); }
+#sliderMic::-moz-range-thumb     { background: var(--red); box-shadow: 0 0 8px rgba(255,68,85,0.65); }
+#sliderMic { background: linear-gradient(to right, var(--amber-lo), rgba(255,68,85,0.28)); }
 
 /* wobble slider thumb = warm amber/cream */
 #sliderWobble::-webkit-slider-thumb { background: #ffe0a0; box-shadow: 0 0 10px rgba(255,210,100,0.7); }
@@ -573,6 +648,7 @@ input[type=range]::-moz-range-thumb {
   font-variant-numeric: tabular-nums;
 }
 .setting-val.vol-val { color: var(--green); }
+.setting-val.mic-val { color: var(--red); }
 
 /* ─── HISTORY ─── */
 .history-wrap {
@@ -673,7 +749,8 @@ input[type=range]::-moz-range-thumb {
 
 /* hidden input — display:none だと一部モバイルブラウザでプログラム的 .click() が
    無反応になる事例があるため、オフスクリーン visually-hidden 方式。 */
-#folderInput {
+#folderInput,
+#fileInput {
   position: absolute;
   left: -9999px;
   width: 1px;
@@ -884,6 +961,9 @@ input[type=range]::-moz-range-thumb {
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
   .search-wrap {
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
@@ -969,7 +1049,13 @@ input[type=range]::-moz-range-thumb {
 
   <!-- CONTROLS -->
   <div class="controls">
-    <button class="btn" id="btnFolder">📁 フォルダ選択</button>
+    <div class="source-picker">
+      <button class="btn" id="btnSource" type="button" aria-expanded="false" aria-controls="sourceMenu">📁 選択</button>
+      <div class="source-menu" id="sourceMenu" hidden>
+        <button class="btn" id="btnFolder" type="button">📁 フォルダ</button>
+        <button class="btn" id="btnFile" type="button">🎵 ファイル</button>
+      </div>
+    </div>
     <button class="btn primary" id="btnPlay" disabled aria-pressed="false" onclick="togglePlay()">▶ PLAY</button>
     <button class="btn" id="btnSkip" disabled onclick="skipTrack()">⏭ スキップ</button>
     <div class="full-repeat-row">
@@ -992,26 +1078,34 @@ input[type=range]::-moz-range-thumb {
   <div class="settings">
     <div class="settings-header">
       <div class="settings-title">⚙ SETTINGS</div>
-      <div class="total-badge">合計 1枠 = <span id="totalBadge">20s</span></div>
+      <div class="settings-meta">
+        <button type="button" class="settings-lock-btn" id="settingsLockBtn" aria-pressed="false" onclick="toggleSettingsLock()">🔒 ロック解除</button>
+        <div class="total-badge">合計 1枠 = <span id="totalBadge">20s</span></div>
+      </div>
     </div>
     <div class="setting-row">
       <label class="setting-label" for="sliderPlay">再生時間 (solo)</label>
-      <input type="range" id="sliderPlay" min="5" max="120" value="12" oninput="onSettingChange()">
+      <input type="range" id="sliderPlay" min="5" max="120" value="12" oninput="onSettingChange()" disabled>
       <div class="setting-val" id="valPlay">12s</div>
     </div>
     <div class="setting-row">
       <label class="setting-label" for="sliderFade">クロスフェード</label>
-      <input type="range" id="sliderFade" min="1" max="30" value="8" oninput="onSettingChange()">
+      <input type="range" id="sliderFade" min="1" max="30" value="8" oninput="onSettingChange()" disabled>
       <div class="setting-val" id="valFade">8s</div>
     </div>
     <div class="setting-row">
-      <button type="button" class="setting-label vol-label-clickable" id="volLabel" title="クリックでミュート (M)" aria-pressed="false" aria-label="ミュート切替（M キーでも可）">ボリューム</button>
-      <input type="range" id="sliderVol" min="0" max="100" value="80" oninput="onVolumeChange()" aria-label="ボリューム">
+      <button type="button" class="setting-label vol-label-clickable" id="volLabel" title="クリックでBGMミュート (M)" aria-pressed="false" aria-label="BGMミュート切替（M キーでも可）">BGM音量</button>
+      <input type="range" id="sliderVol" min="0" max="100" value="80" oninput="onVolumeChange()" aria-label="BGM音量" disabled>
       <div class="setting-val vol-val" id="valVol">80%</div>
     </div>
     <div class="setting-row">
+      <label class="setting-label" for="sliderMic">マイク音量</label>
+      <input type="range" id="sliderMic" min="0" max="100" value="0" oninput="onMicVolumeChange()" aria-label="マイク音量" disabled>
+      <div class="setting-val mic-val" id="valMic">0%</div>
+    </div>
+    <div class="setting-row">
       <label class="setting-label" for="sliderWobble">揺らぎ ✦</label>
-      <input type="range" id="sliderWobble" min="0" max="100" value="0" oninput="onWobbleChange()">
+      <input type="range" id="sliderWobble" min="0" max="100" value="0" oninput="onWobbleChange()" disabled>
       <div class="wobble-val-wrap">
         <div class="setting-val wobble-val" id="valWobble">0</div>
         <div class="wobble-mode" id="wobbleMode">— OFF —</div>
@@ -1057,12 +1151,14 @@ input[type=range]::-moz-range-thumb {
 </div>
 
 <input type="file" id="folderInput" webkitdirectory multiple accept="audio/*" tabindex="-1" aria-hidden="true">
+<input type="file" id="fileInput" accept="audio/*" tabindex="-1" aria-hidden="true">
 
 <script>
 // ════════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════════
 let files        = [];
+let sourceMode   = 'folder';
 let currentIdx   = -1;
 let nextIdx      = -1;
 let isPlaying    = false;
@@ -1074,6 +1170,7 @@ let activeSlot   = 0;
 let playDuration = 12;         // solo play seconds (12 + 8 = 20)
 let fadeDuration = 8;          // crossfade seconds
 let masterVolume = 0.8;        // 0.0 – 1.0
+let micVolume    = 0;          // 0.0 - 1.0
 
 let slotEndTime  = 0;
 let fadeTimer    = null;
@@ -1337,6 +1434,49 @@ function safeLSGet(key) {
   try { return localStorage.getItem(key); } catch (_) { return null; }
 }
 
+// ── SETTINGS slider lock ──
+const SETTINGS_SLIDER_IDS = ['sliderPlay', 'sliderFade', 'sliderVol', 'sliderMic', 'sliderWobble'];
+let settingsUnlocked = false;
+let settingsAutoLockTimer = null;
+
+function applySettingsLock() {
+  SETTINGS_SLIDER_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = !settingsUnlocked;
+    el.setAttribute('aria-disabled', settingsUnlocked ? 'false' : 'true');
+  });
+
+  const btn = document.getElementById('settingsLockBtn');
+  if (btn) {
+    btn.classList.toggle('unlocked', settingsUnlocked);
+    btn.textContent = settingsUnlocked ? '🔓 調整中' : '🔒 ロック解除';
+    btn.title = settingsUnlocked ? 'クリックで設定スライダーをロック' : 'クリックで設定スライダーを一時解除';
+    btn.setAttribute('aria-pressed', settingsUnlocked ? 'true' : 'false');
+  }
+
+  if (!settingsUnlocked) {
+    clearTimeout(settingsAutoLockTimer);
+    settingsAutoLockTimer = null;
+  }
+}
+
+function setSettingsUnlocked(nextUnlocked) {
+  settingsUnlocked = !!nextUnlocked;
+  applySettingsLock();
+  if (settingsUnlocked) scheduleSettingsAutoLock();
+}
+
+function toggleSettingsLock() {
+  setSettingsUnlocked(!settingsUnlocked);
+}
+
+function scheduleSettingsAutoLock() {
+  if (!settingsUnlocked) return;
+  clearTimeout(settingsAutoLockTimer);
+  settingsAutoLockTimer = setTimeout(() => setSettingsUnlocked(false), 10000);
+}
+
 // ════════════════════════════════════════════════════════
 //  PLAYBACK ADVANCE GUARD
 //  fadeTimer 内で「進めるべきか / 様子見すべきか」を判定するヘルパー。
@@ -1573,6 +1713,13 @@ let actx       = null;
 let gainA      = null;
 let gainB      = null;
 let masterGain = null;
+let micStream  = null;
+let micSource  = null;
+let micHighpass = null;
+let micCompressor = null;
+let micGain    = null;
+let isKaraokeOn = false;
+let isKaraokeStarting = false;
 
 // ── Equal-power クロスフェード用カーブ ──
 // 線形クロスフェードでは中間点で両ゲインが 0.5+0.5=1.0 でも、人間の耳には
@@ -1776,6 +1923,81 @@ function applyMasterVolume() {
   }
 }
 
+function connectKaraokeMic() {
+  if (!actx || !micStream || micSource) return;
+  micSource = actx.createMediaStreamSource(micStream);
+  micHighpass = actx.createBiquadFilter();
+  micHighpass.type = 'highpass';
+  micHighpass.frequency.value = 90;
+  micCompressor = actx.createDynamicsCompressor();
+  micCompressor.threshold.value = -24;
+  micCompressor.knee.value = 18;
+  micCompressor.ratio.value = 4;
+  micCompressor.attack.value = 0.006;
+  micCompressor.release.value = 0.18;
+  micGain = actx.createGain();
+  micGain.gain.value = micVolume;
+  micSource.connect(micHighpass);
+  micHighpass.connect(micCompressor);
+  micCompressor.connect(micGain);
+  micGain.connect(actx.destination);
+}
+
+async function startKaraoke() {
+  if (isKaraokeOn || isKaraokeStarting) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    resetMicSliderToZero();
+    alert('このブラウザではマイク入力を使えません。');
+    return;
+  }
+  isKaraokeStarting = true;
+  await resumeAudioContext();
+  if (!actx) {
+    isKaraokeStarting = false;
+    resetMicSliderToZero();
+    return;
+  }
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+    if (micVolume <= 0) {
+      stopKaraoke();
+      return;
+    }
+    connectKaraokeMic();
+    isKaraokeOn = true;
+  } catch (e) {
+    console.warn('Karaoke mic failed:', e);
+    resetMicSliderToZero();
+    alert('マイクを開始できませんでした。ブラウザのマイク権限を確認してください。');
+  } finally {
+    isKaraokeStarting = false;
+  }
+}
+
+function stopKaraoke() {
+  try { if (micGain) micGain.disconnect(); } catch(_) {}
+  try { if (micCompressor) micCompressor.disconnect(); } catch(_) {}
+  try { if (micHighpass) micHighpass.disconnect(); } catch(_) {}
+  try { if (micSource) micSource.disconnect(); } catch(_) {}
+  if (micStream) {
+    micStream.getTracks().forEach(track => {
+      try { track.stop(); } catch(_) {}
+    });
+  }
+  micStream = null;
+  micSource = null;
+  micHighpass = null;
+  micCompressor = null;
+  micGain = null;
+  isKaraokeOn = false;
+}
+
 // ════════════════════════════════════════════════════════
 //  INDEXEDDB — フォルダハンドル永続化
 // ════════════════════════════════════════════════════════
@@ -1819,9 +2041,26 @@ const idbSet = async (key, val) => {
 const isMobile = () => /Android|iPhone|iPad|iPod|Mobile|Mi Browser|MiuiBrowser/i.test(navigator.userAgent);
 
 // フォルダボタン: onclick 属性なし、JS で完全管理
+document.getElementById('btnSource').addEventListener('click', () => toggleSourceMenu());
 document.getElementById('btnFolder').addEventListener('click', () => selectFolder());
+document.getElementById('btnFile').addEventListener('click', () => selectFile());
+
+function toggleSourceMenu(forceOpen) {
+  const menu = document.getElementById('sourceMenu');
+  const btn = document.getElementById('btnSource');
+  if (!menu || !btn) return;
+  const open = typeof forceOpen === 'boolean' ? forceOpen : menu.hidden;
+  menu.hidden = !open;
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+document.addEventListener('click', e => {
+  const picker = document.querySelector('.source-picker');
+  if (picker && !picker.contains(e.target)) toggleSourceMenu(false);
+});
 
 async function selectFolder() {
+  toggleSourceMenu(false);
   // モバイルでは showDirectoryPicker を使わず webkitdirectory に統一。
   // → ① 復元バグ回避  ② Mi Browser など FSA 非搭載でも同じ経路
   if (!isMobile() && window.showDirectoryPicker) {
@@ -1842,19 +2081,36 @@ async function selectFolder() {
   document.getElementById('folderInput').click();
 }
 
+function selectFile() {
+  toggleSourceMenu(false);
+  const input = document.getElementById('fileInput');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
 // fallback: <input webkitdirectory>
 const AUDIO_EXTS = /\.(mp3|wav|ogg|flac|aac|m4a|opus|weba|wma)$/i;
 
-function ingestPickedFiles(fileList, fallbackLabel) {
-  files = Array.from(fileList)
+function resetPickedFiles(nextFiles, mode, label) {
+  sourceMode = mode;
+  files = nextFiles
     .filter(f => AUDIO_EXTS.test(f.name))
     .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
   renderFileList();
-  document.getElementById('fileBadge').textContent = files.length + ' files';
+  document.getElementById('fileBadge').textContent = files.length + (files.length === 1 ? ' file' : ' files');
   document.getElementById('btnPlay').disabled = files.length === 0;
   if (isPlaying) stopAll();
   else releaseSlotsForFolderChange();
   resetRecentIdxList();
+  if (mode === 'file') {
+    updateFileBtn(label || (files[0] ? files[0].name : 'ファイル'));
+    hideBanner();
+  }
+}
+
+function ingestPickedFiles(fileList, fallbackLabel) {
+  resetPickedFiles(Array.from(fileList), 'folder', fallbackLabel);
   if (fileList.length > 0) {
     // webkitRelativePath はディレクトリ選択時のみ非空。素の複数ファイル選択時は空文字。
     const rel = fileList[0].webkitRelativePath || '';
@@ -1867,6 +2123,13 @@ function ingestPickedFiles(fileList, fallbackLabel) {
 
 document.getElementById('folderInput').addEventListener('change', function(e) {
   ingestPickedFiles(e.target.files, 'フォルダ');
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const picked = Array.from(e.target.files || []);
+  resetPickedFiles(picked, 'file', picked[0] ? picked[0].name : 'ファイル');
+  safeLSSet('lastFolderName', '');
+  idbSet('folderHandle', null);
 });
 
 async function loadFilesFromHandle(handle) {
@@ -1893,9 +2156,10 @@ async function loadFilesFromHandle(handle) {
   await walk(handle, 0);
 
   arr.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  sourceMode = 'folder';
   files = arr;
   renderFileList();
-  document.getElementById('fileBadge').textContent = files.length + ' files';
+  document.getElementById('fileBadge').textContent = files.length + (files.length === 1 ? ' file' : ' files');
   document.getElementById('btnPlay').disabled = files.length === 0;
   if (isPlaying) stopAll();
   else releaseSlotsForFolderChange();
@@ -1904,7 +2168,12 @@ async function loadFilesFromHandle(handle) {
 
 function updateFolderBtn(name) {
   const short = name.length > 10 ? name.slice(0, 10) + '…' : name;
-  document.getElementById('btnFolder').textContent = `📂 ${short}`;
+  document.getElementById('btnSource').textContent = `📂 ${short}`;
+}
+
+function updateFileBtn(name) {
+  const short = name.length > 10 ? name.slice(0, 10) + '…' : name;
+  document.getElementById('btnSource').textContent = `🎵 ${short}`;
 }
 
 function hideBanner() {
@@ -2264,6 +2533,7 @@ function getWobbleMode(v) {
 }
 
 function onWobbleChange() {
+  scheduleSettingsAutoLock();
   const slider = document.getElementById('sliderWobble');
   const raw = +slider.value;
   wobbleIntensity = raw / 100;
@@ -2387,6 +2657,7 @@ function wobbleTick() {
 }
 
 function onSettingChange() {
+  scheduleSettingsAutoLock();
   const sliderPlay = document.getElementById('sliderPlay');
   const sliderFade = document.getElementById('sliderFade');
   playDuration = +sliderPlay.value;
@@ -2403,6 +2674,7 @@ function onSettingChange() {
 }
 
 function onVolumeChange() {
+  scheduleSettingsAutoLock();
   const sliderVol = document.getElementById('sliderVol');
   masterVolume = +sliderVol.value / 100;
   const pct = Math.round(masterVolume * 100);
@@ -2418,6 +2690,39 @@ function onVolumeChange() {
     label.classList.toggle('muted', muted);
     label.setAttribute('aria-pressed', muted ? 'true' : 'false');
   }
+}
+
+function applyMicVolume() {
+  if (!actx || !micGain) return;
+  const now = actx.currentTime;
+  micGain.gain.cancelScheduledValues(now);
+  micGain.gain.setTargetAtTime(micVolume, now, 0.015);
+}
+
+function resetMicSliderToZero() {
+  const sliderMic = document.getElementById('sliderMic');
+  if (sliderMic) sliderMic.value = 0;
+  micVolume = 0;
+  const valMic = document.getElementById('valMic');
+  if (valMic) valMic.textContent = '0%';
+  if (sliderMic) sliderMic.setAttribute('aria-valuetext', 'マイクミュート');
+}
+
+async function onMicVolumeChange() {
+  scheduleSettingsAutoLock();
+  const sliderMic = document.getElementById('sliderMic');
+  micVolume = +sliderMic.value / 100;
+  const pct = Math.round(micVolume * 100);
+  document.getElementById('valMic').textContent = pct + '%';
+  sliderMic.setAttribute('aria-valuetext', pct === 0 ? 'マイクミュート' : pct + 'パーセント');
+  if (micVolume <= 0) {
+    stopKaraoke();
+    return;
+  }
+  if (!isKaraokeOn) {
+    await startKaraoke();
+  }
+  applyMicVolume();
 }
 
 // ════════════════════════════════════════════════════════
@@ -4481,14 +4786,20 @@ document.addEventListener('keyup', e => {
   if (savedPlay   !== null) document.getElementById('sliderPlay').value   = savedPlay;
   if (savedFade   !== null) document.getElementById('sliderFade').value   = savedFade;
   if (savedVol    !== null) document.getElementById('sliderVol').value    = savedVol;
+  document.getElementById('sliderMic').value = 0;
   if (savedWobble !== null) document.getElementById('sliderWobble').value = savedWobble;
 })();
 
 onSettingChange();
 onVolumeChange();
+onMicVolumeChange();
 onWobbleChange();
+applySettingsLock();
 setupMediaSession();   // ロック画面 / 通知パネルの操作を受け付ける
 tryRestoreFolder();
+window.addEventListener('pagehide', () => {
+  if (isKaraokeOn) stopKaraoke();
+});
 
 // ════════════════════════════════════════════════════════
 //  PWA: Service Worker 登録
